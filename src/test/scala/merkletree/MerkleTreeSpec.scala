@@ -69,6 +69,11 @@ class MerkleTreeSpec extends Specification {
       )
       val tree = MerkleTree(data, sha256Hash _)
 
+      true must beTrue
+
+      data.map(sha256Hash).map(
+        b => tree.contains(b) must beTrue
+      )
     }
   }
 }

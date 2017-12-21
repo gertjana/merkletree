@@ -5,22 +5,17 @@ abstract class MerkleTree(val hash: Block) {
 }
 
 case class Leaf(override val hash: Block, data:Block) extends MerkleTree(hash) {
-  override def contains(hash: Block): Boolean =
-    this.hash == hash
+  override def contains(hash: Block): Boolean = this.hash == hash
 }
 
 case class Branch(override val hash: Block,
                   left: Option[MerkleTree] = Option.empty,
                   right: Option[MerkleTree] = Option.empty
                  ) extends MerkleTree(hash) {
-  override def contains(hash: Block): Boolean =
-    left.contains(hash) || right.contains(hash)
+  override def contains(hash: Block): Boolean = left.forall(_.contains(hash)) || right.forall(_.contains(hash))
 }
 
 object MerkleTree {
-  def apply(left:MerkleTree, right:MerkleTree, digestF: DigestF):MerkleTree =
-    Branch(digestF(left.hash ++ right.hash), Option(left), Option(right))
-
   def apply(blocks: Seq[Block], digestF: DigestF): MerkleTree = {
     assert(blocks.nonEmpty, "Can't do anything with an empty block list")
 
