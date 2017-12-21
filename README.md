@@ -11,7 +11,6 @@ creating a tree is simple as providing a sequence of blocks and a digest functio
 
 ```scala
 def sha256(data:Block):Block = java.security.MessageDigest.getInstance("SHA-256").digest(data.toArray) 
-
 val data:Seq[Block] = Seq(Seq(1,2,3), Seq(4,5,6), Seq(7,8,9))
 val myTree = MerkleTree(data, sha256)
 
