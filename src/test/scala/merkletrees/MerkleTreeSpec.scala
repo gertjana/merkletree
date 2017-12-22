@@ -1,7 +1,11 @@
 package merkletrees
 
+import java.nio.file.{Files, Path, Paths}
+
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
+
+import scala.io.{BufferedSource, Source}
 
 class MerkleTreeSpec extends Specification {
 
@@ -35,9 +39,23 @@ class MerkleTreeSpec extends Specification {
         b => tree.contains(b) must beTrue
       )
     }
+
     "contains should return false for a non existing hash" >> new TestScope {
       tree.contains(nonExistingHash) must beFalse
     }
+
+    "read and convert a binary file into a merkletree" >> new TestScope {
+      val path: Path = Paths.get(getClass.getResource("/random.bin").toURI)
+      val byteArray: Array[Byte] = Files.readAllBytes(path)
+      val blocks: Seq[Block] = byteArray.toSeq.grouped(1024).toSeq
+
+      val testBlock: Block = blocks.iterator.drop(util.Random.nextInt(blocks.size-1)).next
+      val merkleTree = MerkleTree(blocks, sha256Hash)
+
+      merkleTree.contains(sha256Hash(testBlock)) must beTrue
+      merkleTree must haveClass[Branch]
+    }
+
   }
 
   trait TestScope extends Scope {
@@ -62,4 +80,7 @@ class MerkleTreeSpec extends Specification {
     val nonExistingHash: Block = sha256Hash(Seq(8,9,11))
 
   }
+
+
+
 }

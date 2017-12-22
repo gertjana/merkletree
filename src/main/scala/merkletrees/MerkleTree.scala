@@ -26,20 +26,18 @@ object MerkleTree {
   def apply(blocks: Seq[Block], digestF: DigestF): MerkleTree = {
     assert(blocks.nonEmpty, "Can't do anything with an empty block list")
 
-    var leaves = blocks.map(block => Leaf(digestF(block), block))
+    val leaves = blocks.map(block => Leaf(digestF(block), block))
 
-    def merge(digestF: DigestF, xs: Seq[MerkleTree]): MerkleTree = {
-      xs.size match {
-        case 1 => Branch(digestF(xs.head.hash), xs.headOption, None)
-        case 2 => Branch(digestF(xs.head.hash ++ xs.tail.head.hash), xs.headOption, xs.tail.headOption)
-      }
+    def merge(pair: Seq[MerkleTree], digestF: DigestF): MerkleTree = pair.size match {
+      case 1 => Branch(digestF(pair.head.hash), pair.headOption, None)
+      case 2 => Branch(digestF(pair.head.hash ++ pair.tail.head.hash), pair.headOption, pair.tail.headOption)
     }
 
     @tailrec
     def loop(tree: Seq[MerkleTree]): Seq[MerkleTree] = {
       tree.size match {
         case 1 => tree
-        case _ => loop(tree.grouped(2).map(merge(digestF, _)).toSeq)
+        case _ => loop(tree.grouped(2).map(merge(_, digestF)).toSeq)
       }
     }
     loop(leaves).head
