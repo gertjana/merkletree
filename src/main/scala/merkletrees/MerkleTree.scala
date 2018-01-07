@@ -23,7 +23,7 @@ case class Branch(override val hash: Block,
 }
 
 object MerkleTree {
-  def apply(blocks: Seq[Block], digestF: DigestF): MerkleTree = {
+  def apply(blocks: Seq[Block])(implicit digestF: DigestF): MerkleTree = {
     assert(blocks.nonEmpty, "Can't do anything with an empty block list")
 
     val leaves = blocks.map(block => Leaf(digestF(block), block))

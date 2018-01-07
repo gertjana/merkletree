@@ -50,7 +50,7 @@ class MerkleTreeSpec extends Specification {
       val blocks: Seq[Block] = byteArray.toSeq.grouped(1024).toSeq
 
       val testBlock: Block = blocks.iterator.drop(util.Random.nextInt(blocks.size-1)).next
-      val merkleTree = MerkleTree(blocks, sha256Hash)
+      val merkleTree = MerkleTree(blocks)(sha256Hash)
 
       merkleTree.contains(sha256Hash(testBlock)) must beTrue
       merkleTree must haveClass[Branch]
@@ -73,10 +73,12 @@ class MerkleTreeSpec extends Specification {
       Seq[Byte](112,125,127)
     )
 
-    val tree = MerkleTree(data, sha256Hash)
-    val same_tree = MerkleTree(data, sha256Hash)
+    implicit val digestF:DigestF = sha256Hash
 
-    val another_tree = MerkleTree(data2, sha256Hash)
+    val tree = MerkleTree(data)(sha256Hash)
+    val same_tree = MerkleTree(data)(sha256Hash)
+
+    val another_tree = MerkleTree(data2)(sha256Hash)
     val nonExistingHash: Block = sha256Hash(Seq(8,9,11))
 
   }
